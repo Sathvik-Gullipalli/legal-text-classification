@@ -12,7 +12,7 @@ from .data import tokens
 class Demo:
     def __init__(self, artifact_dir="artifacts"):
         self.path = Path(artifact_dir)
-        required = ["manifest.json", "retrieval_vectors.npy", "retrieval_cases.json",
+        required = ["manifest.json", "retrieval_vectors.npy", "retrieval_cases.json", "examples.json",
                     "tfidf.joblib", "lda.joblib", "doc2vec.joblib"]
         missing = [f for f in required if not (self.path / f).exists()]
         if missing:
@@ -120,4 +120,3 @@ def retrieve_similar(text, k=5):
     if _demo is None:
         load()
     return _demo.retrieve_similar(text, k)
-

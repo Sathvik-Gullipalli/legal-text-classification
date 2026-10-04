@@ -19,7 +19,11 @@ BOOTSTRAP = '''
 import os, sys, json, subprocess, zipfile
 from pathlib import Path
 
-IS_COLAB = "google.colab" in sys.modules
+try:
+    import google.colab
+    IS_COLAB = True
+except ImportError:
+    IS_COLAB = False
 if IS_COLAB:
     from google.colab import output
     output.enable_custom_widget_manager()
@@ -213,4 +217,3 @@ save("02_live_demo.ipynb", [
     '''),
 ])
 print("Created training and demo notebooks")
-

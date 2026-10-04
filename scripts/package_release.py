@@ -13,7 +13,7 @@ IGNORED = {".git", ".venv", ".build", ".pytest_cache", "__pycache__", ".ipynb_ch
 def source_files():
     for path in ROOT.rglob("*"):
         relative = path.relative_to(ROOT)
-        if any(p in IGNORED or p.endswith(".egg-info") for p in relative.parts):
+        if any(p in IGNORED or p.endswith(".egg-info") or p.startswith(".chart-data-") for p in relative.parts):
             continue
         if "artifacts" in relative.parts:
             continue
@@ -39,4 +39,3 @@ for name in packages:
     digest = hashlib.sha256((OUT / name).read_bytes()).hexdigest()
     lines.append(f"{digest}  {name}")
 (OUT / "SHA256SUMS.txt").write_text("\n".join(lines) + "\n")
-

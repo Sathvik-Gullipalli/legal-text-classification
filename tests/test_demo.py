@@ -58,3 +58,15 @@ def test_retrieval_sorted_unique_training_only(demo):
     with pytest.raises(ValueError):
         demo.retrieve_similar("criminal evidence", 0)
 
+
+def test_widget_example_and_button_use_saved_models(demo, monkeypatch):
+    import legal_text.widgets as ui
+    displayed = []
+    monkeypatch.setattr(ui, "display", lambda value: displayed.append(value))
+    ui.launch(ROOT / "artifacts")
+    box = displayed[-1]
+    examples, models, text, button, output = box.children
+    examples.value = 0
+    assert text.value == demo.examples[0]["text"]
+    button.click()
+    assert any("Predicted category" in getattr(value, "data", "") for value in displayed)
