@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 import nbformat
 from nbclient import NotebookClient
+from nbconvert import HTMLExporter
 
 ROOT = Path(__file__).resolve().parents[1]
 os.environ["JUPYTER_PATH"] = str(ROOT / ".venv/share/jupyter")
@@ -23,5 +24,6 @@ for name in ("01_train_and_evaluate", "02_live_demo"):
     errors = [o for c in nb.cells if c.cell_type == "code" for o in c.outputs if o.output_type == "error"]
     assert not errors, errors
     nbformat.write(nb, ROOT / f"notebooks/{name}_executed.ipynb")
+    html, _ = HTMLExporter().from_notebook_node(nb)
+    (ROOT / f"notebooks/{name}_executed.html").write_text(html, encoding="utf-8")
     print(f"Executed {name} successfully", flush=True)
-

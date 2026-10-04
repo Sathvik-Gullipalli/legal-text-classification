@@ -1,0 +1,7 @@
+*.csv text eol=lf
+*.py text eol=lf
+*.md text eol=lf
+*.mjs text eol=lf
+*.html whitespace=-blank-at-eol
+*.pdf binary
+*.pptx binary

@@ -27,7 +27,7 @@ extract it into this folder. The archive creates `artifacts/`. Load only this tr
 bundle because joblib deserialization executes Python objects.
 
 ```bash
-python -m jupyterlab notebooks/02_live_demo.ipynb
+PYTHONHASHSEED=42 python -m jupyterlab notebooks/02_live_demo.ipynb
 ```
 
 Select the virtual environment's Python kernel and run the notebook cells in order.
@@ -48,6 +48,12 @@ to be installed before running code. Once installed, the demo works without inte
 3. Run setup. Upload `team9-project.zip` when prompted, followed by the model ZIP.
 4. Run the static example and interactive cells. If you imported NumPy or scikit-learn
    before setup, restart the session after installing dependencies.
+
+The training subprocess fixes Python's startup hash seed. Gensim also uses Python's
+hash for inferred-vector initialization, so exact Doc2Vec inference reproduction
+requires starting the kernel with `PYTHONHASHSEED=42`, as in the local command above.
+A Colab kernel may have a different startup hash seed and show small Doc2Vec output
+differences. TF-IDF and LDA do not use this initialization.
 
 For training, use `01_train_and_evaluate.ipynb` instead. An uploaded project containing
 completed results displays the saved run. To deliberately start a new experiment,
@@ -84,6 +90,14 @@ unless `--force` is provided. Preserve the original results before a deliberate 
 - `submission/`: two-page write-up, eight-slide editable deck, and slides PDF.
 - `docs/`: methodology, live-demo script, viva explanations, and contribution template.
 
+`scripts/build_report.py` regenerates the write-up from exported metrics.
+Executed notebook HTML files provide static evidence without a running Python kernel.
+Widget callbacks require the live notebook and kernel.
+`scripts/build_slides.mjs` preserves the editable deck source. It runs inside Codex's
+bundled Artifact Tool runtime, with `PRESENTATION_SKILL_DIR`, `ARTIFACT_PYTHON`, and
+`RUNTIME_NODE_MODULES` supplied by that runtime. These authoring dependencies are
+separate from the standalone ML/notebook setup.
+
 ## Python interface
 
 ```python
@@ -99,6 +113,15 @@ and cosine similarity for up to five distinct citations from training cases.
 
 ## Evaluation and interpretation
 
+| Model | Test accuracy | Test macro-F1 |
+| --- | --- | --- |
+| TF-IDF + LR | 81.85% | 0.719 |
+| Doc2Vec + LR | 73.49% | 0.643 |
+| LDA + LR | 68.78% | 0.522 |
+| Majority baseline | 22.39% | 0.028 |
+
+TF-IDF + LR is the validation-selected model.
+
 See `results/metrics.json`, `results/selection.json`, and the write-up for measured scores.
 The winner is selected by **validation macro-F1**, then validation accuracy, then
 end-to-end inference latency. Test results compare frozen models and never choose a winner.
@@ -108,6 +131,8 @@ Probabilities are uncalibrated. Short passages differ from full training opinion
 Cosine similarity indicates textual resemblance rather than legal authority. The
 historical US corpus does not establish performance on Indian law, new cases, or other
 document types. Source metadata may contain a small number of opinion-label mismatches.
+The Doc2Vec backend limits each pass to 10,000 retained tokens after filtering and
+downsampling, so very long opinions may lose later context in that representation.
 
 ## Sources and attribution
 
@@ -135,4 +160,3 @@ Keep this repository private. Add faculty and assigned TAs using **Settings > Co
 after obtaining their exact GitHub usernames. The repository and release are private;
 the review panel needs access before opening links. Fill `docs/contributions.csv` with
 actual work and confirm the demo/review schedule with faculty.
-

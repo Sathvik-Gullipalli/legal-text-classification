@@ -40,7 +40,10 @@ This is a documented change from the reference's stated TF-IDF representation.
 samples, sample=1e-4, one worker, seed 42, max_vocab_size=100,000. A stable hash
 replaces platform-dependent hashing. Training uses only training opinions. Classification
 uses inferred vectors for training, validation, test, and demo inputs. Text-specific RNG
-seeding makes repeated inference stable. This avoids using learned document vectors
+seeding makes repeated inference stable within a kernel. Gensim's inferred-vector
+initialization also uses Python hashing, so the delivered training and executed
+notebook kernels start with PYTHONHASHSEED=42. Exact reproduction requires the same
+startup hash seed; Colab kernels may differ. This avoids using learned document vectors
 for training and inferred vectors only for evaluation.
 
 All LR models compare C values 0.1, 1, 10 using lbfgs, max_iter=1500, with no class
@@ -68,9 +71,12 @@ not a benchmark of valid precedents.
 ## Limitations
 
 The corpus is historical and limited to one US court. Categories are imbalanced.
+Full text is supplied to all models, but Gensim 4.3.3's Doc2Vec backend caps each
+pass at 10,000 retained tokens after vocabulary filtering and downsampling. Very
+long opinions can therefore lose later context in Doc2Vec. TF-IDF and LDA use
+the complete input text without this backend cap.
 Metadata-text matching in the upstream dataset may be imperfect. Very long legal
 texts contain boilerplate and citations. Short user input has a different distribution.
 LR probabilities are uncalibrated. Grouped random partitions do not establish
 future-case generalization. Model comparisons use the same partitions, but limited
 hyperparameter search does not establish the best possible implementation of each method.
-

@@ -50,12 +50,13 @@ p(f"The original textacy release [2] contains <b>{summary['raw_records']:,} opin
   f"14 named issue areas. After cleaning, this run retains <b>{summary['retained_records']:,} opinions "
   f"in {len(summary['present_labels'])} supported categories</b>, across {summary['retained_groups']:,} case groups.")
 removed = summary['raw_records'] - summary['retained_records']
+excluded_text = ", ".join(f"{provenance['label_mapping'][str(k)]} ({v} case group)" for k,v in summary['excluded_rare_categories'].items()) or "none"
 p(f"We exclude empty text and missing/unknown labels, remove identical normalized text, "
   f"and join records through shared citations or text hashes. Groups with conflicting labels "
   f"are excluded. Categories require at least five independent case groups. Overall, "
   f"{removed:,} records are excluded, including {summary.get('conflicting_group_records_removed',0):,} "
   f"records in conflicting groups and {summary.get('exact_duplicates_removed',0):,} duplicate copies. "
-  f"Rare-category exclusions: {summary['excluded_rare_categories'] or 'none'}.")
+  f"Rare-category exclusions: {excluded_text}.")
 table([["Partition", "Opinions", "Case groups"]] + [[n.title(), f"{s['records']:,}", f"{s['groups']:,}"] for n,s in summary['splits'].items()], [230,120,150])
 p("A fixed, approximately 60/20/20 grouped, stratified split uses seed 42. Case groups "
   "never cross partitions. Every vocabulary, topic model, and embedding learns from "
@@ -78,7 +79,7 @@ story.append(PageBreak())
 p("Results and conclusions", "title")
 p(f"Frozen test comparison / {summary['splits']['test']['records']:,} held-out opinions", "sub")
 table([["Model", "Accuracy", "Macro-F1", "Weighted F1"]] + [[names[n], f"{m['accuracy']:.3f}", f"{m['macro_f1']:.3f}", f"{m['weighted_f1']:.3f}"] for n,m in metrics.items()], [200,100,100,100])
-story.append(Image(str(ROOT / "results/model_comparison.png"), width=400, height=225))
+story.append(Image(str(ROOT / "results/model_comparison.png"), width=355, height=200))
 p(f"Validation selects <b>{names[winner]}</b> with macro-F1 {selection['models'][winner]['macro_f1']:.3f}. "
   f"Its held-out accuracy is {metrics[winner]['accuracy']:.3f} and macro-F1 is "
   f"{metrics[winner]['macro_f1']:.3f}. The majority baseline reaches accuracy "
@@ -94,7 +95,8 @@ p("The demo loads saved models, displays a category and top-three uncalibrated p
   "textual resemblance does not establish binding authority or a valid legal argument.")
 p("Results apply to historical US Supreme Court opinions. Random grouped splits do not "
   "measure future-case generalization. Imbalanced categories, possible source metadata "
-  "mismatches, and boilerplate affect reliability. Short user passages differ from full "
+  "mismatches, and boilerplate affect reliability. Gensim caps each Doc2Vec pass at "
+  "10,000 retained tokens, which can omit later context in long opinions. Short user passages differ from full "
   "training opinions. No claim of generalization to Indian law is made. The reference "
   "paper's prose and results table conflict, so its scores are not reused as our results.")
 p("References and reproducibility", "head")
@@ -102,7 +104,7 @@ p('[1] K. Iyer. <i>Classification of Legal Text</i>, Stanford CS229, 2020. '
   '<link href="https://cs229.stanford.edu/proj2020spr/report/Iyer.pdf">cs229.stanford.edu/proj2020spr/report/Iyer.pdf</link><br/>'
   '[2] textacy-data. Supreme Court corpus, Python 3 release v1.0. '
   '<link href="https://github.com/bdewilde/textacy-data/releases/tag/supreme_court_py3_v1.0">github.com/bdewilde/textacy-data, supreme_court_py3_v1.0</link><br/>'
-  '[3] textacy SupremeCourt mapping. Metadata: Spaeth, Epstein et al., Supreme Court Database, '
+  '[3] <link href="https://github.com/chartbeat-labs/textacy/blob/main/src/textacy/datasets/supreme_court.py">textacy SupremeCourt mapping</link>. Metadata: Spaeth, Epstein et al., Supreme Court Database, '
   '2016 Release 1. CC BY-NC 3.0 US attribution, per corpus maintainer.', "small")
 p(f"Dataset SHA256: {provenance['sha256']}<br/>"
   "Reproduction: README, pinned requirements, saved split manifest, validation candidates, "

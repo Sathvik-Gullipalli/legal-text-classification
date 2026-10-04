@@ -31,6 +31,7 @@ faculty/TA access to the private repository. Do not train during the live review
 
 If widgets fail, use the static example cell above the interface. If a notebook kernel
 fails, show the executed backup notebook and slide PDF, then explain the saved artifacts.
+The executed HTML backup also opens directly in a browser and contains static predictions.
 Keep the terminal command ready: `python -m pytest -q`.
 
 ## Explanation ownership
@@ -38,4 +39,3 @@ Keep the terminal command ready: `python -m pytest -q`.
 Both members should be able to explain the data split, a representation method,
 validation selection, and one failure case. Complete the contribution log with actual
 work and practice a shared walkthrough rather than claiming unperformed work.
-
